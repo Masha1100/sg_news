@@ -1,0 +1,11 @@
+#paging li {
+    display: inline;
+    font-size: 14px;
+    margin: 3px;
+}
+
+#paging .current {
+    border: 1px dotted;
+    font-size: 18px;
+    padding: 3px;
+}
