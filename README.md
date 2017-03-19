@@ -1,6 +1,6 @@
 # sg_news
 
-* [Symfony The Routing Component] (http://symfony.com/doc/current/components/routing.html)
+* [Symfony The Routing Component] (http://symfony.com/doc/current/components/routing.html);
  
 * [Simplepie] (https://github.com/simplepie/simplepie)
  
