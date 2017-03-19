@@ -12,3 +12,7 @@ CREATE TABLE sg_news
     PRIMARY KEY(id), 
     UNIQUE(link)
 );
+
+SELECT title, link, sourse, description, pub_date FROM `sg_news` ORDER BY `pub_date` DESC LIMIT $start, $limit;
+
+SELECT *  FROM sg_news;
