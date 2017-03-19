@@ -32,7 +32,7 @@ foreach ($items as $item) {
     ]);
 
     if (! empty($item->get_title()) && ! empty($item->get_link())) {
-         $logger_info->info("Info: writing was succesfull");
+         $logger_info->info("Info: writing was succesfull" date("Y-m-d H:i:s"));
          } else {
              $logger->error("Warning:something wrong");
          }
