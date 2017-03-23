@@ -1,8 +1,11 @@
 <?php
 
 require_once '../vendor/autoload.php';
+require_once '../sg-rss-reader.php';
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -12,6 +15,8 @@ use Symfony\Component\Routing\Route;
 
 // $_SERVER['REQUEST_URI'] = preg_replace('|/$|', '', $_SERVER['REQUEST_URI'], 1);
 $request = Request::createFromGlobals();
+$response = new Response;
+
 $session = new Session();
 $session->start();
 
@@ -19,67 +24,43 @@ $request->setSession($session);
 
 $routes = new RouteCollection();
 
-$routes->add('get_login', new Route('/login', array('_controller' => function ($request) {
-    echo 'SHOW FORM HERE ';
-
-    echo '<form action="/login" method="POST">
-
-    <input name="name">
-    <input name="pass">
-    <input type="submit">
-</form>';
-}), array(), array(), '', array(), array('GET')));
-
-$routes->add('post_login', new Route('/login', array('_controller' => function ($request) {
-
-    echo 'CHECK USER AND STORE HER IN SESSION';
-    $post = $request->request->all();
-    var_dump($post);
-    $session = $request->getSession();
-
-    // echo 'LOGIN ' . $name;
-}), array(), array(), '', array(), array('POST')));
-
-$routes->add('logout', new Route('/logout', array('_controller' => function ($request) {
-    echo 'LOGOUT';
-
-    // $session->invalidate();
-
-}), array(), array(), '', array(), array('GET')));
-
-$routes->add('cabinet', new Route('/cabinet', array('_controller' => function ($request) {
-
-    // Check if user was set in Session
-    echo 'CABINET';
-    var_dump($request->query->get('users')[0]);
-}), array(), array(), '', array(), array('GET')));
-
-$routes->add('front_route', new Route('', array('_controller' => function () {
-
-    $db = new PDO("mysql:host=localhost;dbname=sg_news;charset=utf8", "root", "123");
-    $sql = "SELECT * FROM news ORDER BY id DESC LIMIT 50";
-    $stmt = $db->prepare($sql);
-    $stmt->execute();
-    $items = $stmt->fetchAll();
-    include '../templates/index.tpl.php';
-
-})));
-
+$routes->add('index', new Route('/', ['_controller'=>'App\Controller\Front@getIndex'], [], [], '', [], ['GET']));
+$routes->add('get_login', new Route('/login', ['_controller' => 'App\Controller\Front@getLogin'], [], [], '', [], ['GET']));
+$routes->add('post_login', new Route('/login', ['_controller' => 'App\Controller\Front@postLogin'], [], [], '', [], ['POST']));
+$routes->add('logout', new Route('/logout', ['_controller' => 'App\Controller\Front@getLogout'], [], [], '', [], ['GET']));
+$routes->add('cabinet', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@getIndex'], [], [], '', [], ['GET']));
+$routes->add('add_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@addSourse'], [], [], '', [], ['POST']));
+$routes->add('delete_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@deleteSourse'], [], [], '', [], ['POST']));
+$routes->add('list_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@listSourse'], [], [], '', [], ['POST']));
 
 $context = new RequestContext();
 $context->fromRequest($request);
-
 $matcher = new UrlMatcher($routes, $context);
 
 try {
     $parameters = $matcher->matchRequest($request);
+    $request->attributes->replace($parameters);
+    $action = $parameters['_controller'];
 } catch (Symfony\Component\Routing\Exception\ResourceNotFoundException $e) {
-    echo '404';
-    die();
+    $response->setStatusCode('404');
+    $response->setContent('404: Page not found');
+} catch (Symfony\Component\Routing\Exception\MethodNotAllowedException $e) {
+    $response->setStatusCode('405');
+    $response->setContent('405: Method not allowed');
 }
 
-$action = $parameters['_controller'];
+if (isset($action) && is_string($action)) {
+    $controller = explode('@', $action);
 
-if (is_callable($action)) {
-    $action($request);
+    $controller_class_name = $controller[0];
+    $controller_instance = new $controller_class_name;
+    $method = $controller[1];
+
+    $response = $controller_instance ->$method($request, $response);
 }
+
+if (isset($action)&& is_callable($action)){
+    $response=$action($request, $response);
+}
+
+$response->send();
