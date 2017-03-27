@@ -9,7 +9,7 @@ class Front
 {
     public function getIndex($request, $response)
     {
-        $db = new PDO("mysql:host=localhost;dbname=sg_course;charset=utf8", "root", "", [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        $db = new PDO("mysql:host=localhost;dbname=sg_course;charset=utf8", "root", "123", [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
         $limit = 30; // количество материалов на странице       
         // номер страницы
         if (isset($_GET['page'])) {
@@ -19,7 +19,7 @@ class Front
         }
 
         $start = ($page-1)*$limit; 
-        $sql = "SELECT title, link, sourse, description, pub_date FROM `sg_news` ORDER BY `pub_date` DESC LIMIT $start, $limit";
+        $sql = "SELECT title, link, source, description, pub_date FROM `sg_news` ORDER BY `pub_date` DESC LIMIT $start, $limit";
         $result = $db->prepare($sql);
         $result->execute();
 
@@ -28,7 +28,7 @@ class Front
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $news[$i]['title'] = $row['title'];
             $news[$i]['link'] = $row['link'];
-            $news[$i]['sourse'] = $row['sourse'];
+            $news[$i]['source'] = $row['source'];
             $news[$i]['description'] = $row['description'];
             $news[$i]['pub_date'] = $row['pub_date'];
             $i++;
@@ -46,13 +46,8 @@ class Front
 
     public function getLogin($request, $response)
     {
-        return $response->setContent('<form action="/login" method="POST">
-            <input name="name">
-            <input name="pass">
-            <input type="submit">
-        </form>');
-        // $response->setContent(include '../templates/form.php');
-        // return $response;
+         $response->setContent(include '../templates/form.tpl.php');
+         return $response;
     }
 
     public function postLogin($request)
@@ -61,8 +56,8 @@ class Front
         $pass = $request->request->get('pass');
 
         $session = $request->getSession();
-        if ($login =='user'&&$login== '123'){
-            $session->setSession('logged', true);
+        if ($login =='user'&&$pass== '123'){
+            $session->set('logged', true);
             return new RedirectResponse('/cabinet');
         }
         return new RedirectResponse('/login');
