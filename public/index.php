@@ -1,7 +1,7 @@
 <?php
 
 require_once '../vendor/autoload.php';
-require_once '../sg-rss-reader.php';
+//require_once '../sg-rss-reader.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,14 +24,13 @@ $request->setSession($session);
 
 $routes = new RouteCollection();
 
-$routes->add('index', new Route('/', ['_controller'=>'App\Controller\Front@getIndex'], [], [], '', [], ['GET']));
+$routes->add('index', new Route('/', ['_controller' => 'App\Controller\Front@getIndex'], [], [], '', [], ['GET']));
 $routes->add('get_login', new Route('/login', ['_controller' => 'App\Controller\Front@getLogin'], [], [], '', [], ['GET']));
 $routes->add('post_login', new Route('/login', ['_controller' => 'App\Controller\Front@postLogin'], [], [], '', [], ['POST']));
 $routes->add('logout', new Route('/logout', ['_controller' => 'App\Controller\Front@getLogout'], [], [], '', [], ['GET']));
 $routes->add('cabinet', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@getIndex'], [], [], '', [], ['GET']));
-$routes->add('add_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@addSourse'], [], [], '', [], ['POST']));
-$routes->add('delete_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@deleteSourse'], [], [], '', [], ['POST']));
-$routes->add('list_sourse', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@listSourse'], [], [], '', [], ['POST']));
+$routes->add('add_source', new Route('/cabinet', ['_controller' => 'App\Controller\Cabinet@addSource'], [], [], '', [], ['POST']));
+$routes->add('delete_source', new Route('/delcabinet', ['_controller' => 'App\Controller\Cabinet@deleteSource'], [], [], '', [], ['POST']));
 
 $context = new RequestContext();
 $context->fromRequest($request);
